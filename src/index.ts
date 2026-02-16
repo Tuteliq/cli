@@ -763,8 +763,8 @@ webhook
 
       console.log();
       console.log(chalk.green.bold('✓ Webhook created'));
-      console.log(`ID:   ${chalk.cyan(result.webhook.id)}`);
-      console.log(`Name: ${result.webhook.name}`);
+      console.log(`ID:   ${chalk.cyan(result.id)}`);
+      console.log(`Name: ${result.name}`);
       console.log();
       console.log(chalk.yellow.bold('Secret (save this — shown only once):'));
       console.log(chalk.yellow(result.secret));
@@ -797,8 +797,8 @@ webhook
 
       console.log();
       console.log(chalk.green.bold('✓ Webhook updated'));
-      console.log(`Name:   ${result.webhook.name}`);
-      console.log(`Active: ${result.webhook.is_active ? chalk.green('Yes') : chalk.dim('No')}`);
+      console.log(`Name:   ${result.name}`);
+      console.log(`Active: ${result.is_active ? chalk.green('Yes') : chalk.dim('No')}`);
     } catch (error) {
       spinner.stop();
       console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
