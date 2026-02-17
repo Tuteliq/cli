@@ -1001,4 +1001,355 @@ usage
     }
   });
 
+// ─── Fraud Detection Commands ────────────────────────────────────────────────
+
+function formatDetectionResult(result: any, label: string): void {
+  console.log();
+  if (result.detected) {
+    console.log(chalk.red.bold(`⚠ ${label} DETECTED`));
+  } else {
+    console.log(chalk.green.bold(`✓ No ${label.toLowerCase()} detected`));
+  }
+  console.log();
+  console.log(`Risk Score:  ${chalk.cyan((result.risk_score * 100).toFixed(0) + '%')}`);
+  console.log(`Severity:    ${formatSeverity(result.severity)}`);
+  console.log(`Confidence:  ${chalk.cyan((result.confidence * 100).toFixed(0) + '%')}`);
+  console.log(`Level:       ${formatRisk(result.level)}`);
+  if (result.categories?.length > 0) {
+    console.log(`Categories:  ${result.categories.join(', ')}`);
+  }
+  console.log();
+  console.log(chalk.dim('Rationale:'));
+  console.log(result.rationale);
+  if (result.evidence?.length > 0) {
+    console.log();
+    console.log(chalk.dim('Evidence:'));
+    result.evidence.forEach((e: string) => console.log(chalk.yellow(`  • ${e}`)));
+  }
+  console.log();
+  console.log(`Action: ${chalk.yellow(result.recommended_action)}`);
+}
+
+function addDetectionOptions(cmd: Command): Command {
+  return cmd
+    .option('--include-evidence', 'Include evidence in response')
+    .option('--age-group <group>', 'Age group context')
+    .option('--external-id <id>', 'External reference ID')
+    .option('--customer-id <id>', 'Customer ID');
+}
+
+function extractDetectionOptions(options: any): any {
+  return {
+    includeEvidence: options.includeEvidence || false,
+    context: options.ageGroup ? { ageGroup: options.ageGroup } : undefined,
+    externalId: options.externalId,
+    customerId: options.customerId,
+  };
+}
+
+// Detect social engineering
+addDetectionOptions(
+  program
+    .command('detect-social-engineering <text>')
+    .alias('social-engineering')
+    .description('Detect social engineering attempts targeting minors')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectSocialEngineering({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'SOCIAL ENGINEERING');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// Detect app fraud
+addDetectionOptions(
+  program
+    .command('detect-app-fraud <text>')
+    .alias('app-fraud')
+    .description('Detect in-app purchase fraud or scams targeting children')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectAppFraud({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'APP FRAUD');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// Detect romance scam
+addDetectionOptions(
+  program
+    .command('detect-romance-scam <text>')
+    .alias('romance-scam')
+    .description('Detect romance scam patterns in conversations')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectRomanceScam({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'ROMANCE SCAM');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// Detect mule recruitment
+addDetectionOptions(
+  program
+    .command('detect-mule-recruitment <text>')
+    .alias('mule-recruitment')
+    .description('Detect money mule recruitment targeting young people')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectMuleRecruitment({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'MULE RECRUITMENT');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// ─── Safety Extended Commands ────────────────────────────────────────────────
+
+// Detect gambling harm
+addDetectionOptions(
+  program
+    .command('detect-gambling-harm <text>')
+    .alias('gambling-harm')
+    .description('Detect gambling-related harm indicators')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectGamblingHarm({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'GAMBLING HARM');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// Detect coercive control
+addDetectionOptions(
+  program
+    .command('detect-coercive-control <text>')
+    .alias('coercive-control')
+    .description('Detect coercive control patterns in communications')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectCoerciveControl({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'COERCIVE CONTROL');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// Detect vulnerability exploitation
+addDetectionOptions(
+  program
+    .command('detect-vulnerability-exploitation <text>')
+    .alias('vulnerability-exploitation')
+    .description('Detect exploitation of vulnerable individuals')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectVulnerabilityExploitation({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'VULNERABILITY EXPLOITATION');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// Detect radicalisation
+addDetectionOptions(
+  program
+    .command('detect-radicalisation <text>')
+    .alias('radicalisation')
+    .description('Detect radicalisation indicators in content')
+).action(async (text: string, options: any) => {
+  const spinner = ora('Analyzing...').start();
+  try {
+    const client = getClient();
+    const result = await client.detectRadicalisation({
+      content: text,
+      ...extractDetectionOptions(options),
+    });
+    spinner.stop();
+    formatDetectionResult(result, 'RADICALISATION');
+  } catch (error) {
+    spinner.stop();
+    console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+});
+
+// ─── Multi-Endpoint Analysis ─────────────────────────────────────────────────
+
+program
+  .command('analyse-multi <text>')
+  .alias('multi')
+  .description('Run multiple detection endpoints in a single request')
+  .requiredOption('-e, --endpoints <list>', 'Comma-separated list of endpoints (e.g., grooming,social-engineering,romance-scam)')
+  .option('--include-evidence', 'Include evidence in response')
+  .option('--age-group <group>', 'Age group context')
+  .option('--external-id <id>', 'External reference ID')
+  .option('--customer-id <id>', 'Customer ID')
+  .action(async (text: string, options: any) => {
+    const spinner = ora('Analyzing across endpoints...').start();
+    try {
+      const client = getClient();
+      const endpoints = options.endpoints.split(',').map((s: string) => s.trim());
+      const result = await client.analyseMulti({
+        content: text,
+        endpoints,
+        includeEvidence: options.includeEvidence || false,
+        context: options.ageGroup ? { ageGroup: options.ageGroup } : undefined,
+        externalId: options.externalId,
+        customerId: options.customerId,
+      });
+      spinner.stop();
+
+      // Summary
+      console.log();
+      console.log(chalk.bold('Multi-Endpoint Analysis Summary'));
+      console.log(chalk.dim('─'.repeat(50)));
+      console.log(`Overall Risk:   ${formatRisk(result.summary.overall_risk_level)}`);
+      console.log(`Detected:       ${chalk.cyan(String(result.summary.detected_count))} / ${result.summary.total_endpoints}`);
+      console.log(`Highest Risk:   ${result.summary.highest_risk ? chalk.red(result.summary.highest_risk) : chalk.green('none')}`);
+      console.log();
+
+      // Individual results
+      console.log(chalk.bold('Endpoint Results'));
+      console.log(chalk.dim('─'.repeat(50)));
+      for (const r of result.results) {
+        const status = r.detected ? chalk.red('DETECTED') : chalk.green('CLEAR');
+        const name = r.endpoint || r.type || 'unknown';
+        console.log();
+        console.log(`${chalk.bold(name)}: ${status}`);
+        console.log(`  Risk Score:  ${chalk.cyan((r.risk_score * 100).toFixed(0) + '%')}  |  Severity: ${formatSeverity(r.severity)}  |  Confidence: ${chalk.cyan((r.confidence * 100).toFixed(0) + '%')}`);
+        if (r.categories?.length > 0) {
+          console.log(`  Categories:  ${r.categories.join(', ')}`);
+        }
+        console.log(`  ${chalk.dim(r.rationale)}`);
+        if (r.evidence?.length > 0) {
+          r.evidence.forEach((e: string) => console.log(chalk.yellow(`    • ${e}`)));
+        }
+      }
+    } catch (error) {
+      spinner.stop();
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// ─── Video Analysis ──────────────────────────────────────────────────────────
+
+program
+  .command('analyze-video <file>')
+  .alias('video')
+  .description('Analyze a video file for safety concerns')
+  .option('--age-group <group>', 'Age group context')
+  .option('--external-id <id>', 'External reference ID')
+  .option('--customer-id <id>', 'Customer ID')
+  .action(async (file: string, options: any) => {
+    const spinner = ora('Analyzing video...').start();
+    try {
+      const client = getClient();
+      const fs = await import('fs');
+      const path = await import('path');
+      const buffer = fs.readFileSync(file);
+      const filename = path.basename(file);
+      const result = await client.analyzeVideo({
+        file: buffer,
+        filename,
+        ageGroup: options.ageGroup,
+        externalId: options.externalId,
+        customerId: options.customerId,
+      });
+      spinner.stop();
+
+      console.log();
+      console.log(chalk.bold('Video Analysis'));
+      console.log();
+      console.log(`Frames Analyzed:   ${chalk.cyan(String(result.frames_analyzed))}`);
+      console.log(`Overall Risk:      ${chalk.cyan((result.overall_risk_score * 100).toFixed(0) + '%')}`);
+      console.log(`Overall Severity:  ${formatSeverity(result.overall_severity)}`);
+
+      if (result.safety_findings?.length > 0) {
+        console.log();
+        console.log(chalk.bold('Safety Findings'));
+        console.log(chalk.dim('─'.repeat(50)));
+        for (const finding of result.safety_findings) {
+          const ts = finding.timestamp != null ? chalk.dim(`[${finding.timestamp}s]`) : '';
+          const sev = formatSeverity(finding.severity);
+          console.log();
+          console.log(`${ts} ${sev} — ${chalk.bold(finding.type || finding.category || 'Finding')}`);
+          if (finding.description) {
+            console.log(`  ${finding.description}`);
+          }
+          if (finding.confidence != null) {
+            console.log(`  Confidence: ${chalk.cyan((finding.confidence * 100).toFixed(0) + '%')}`);
+          }
+        }
+      } else {
+        console.log();
+        console.log(chalk.green('No safety concerns found in video.'));
+      }
+    } catch (error) {
+      spinner.stop();
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
 program.parse();
