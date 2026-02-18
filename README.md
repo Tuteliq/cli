@@ -180,6 +180,26 @@ MIT
 
 ---
 
+## Get Certified — Free
+
+Tuteliq offers a **free certification program** for anyone who wants to deepen their understanding of online child safety. Complete a track, pass the quiz, and earn your official Tuteliq certificate — verified and shareable.
+
+**Three tracks available:**
+
+| Track | Who it's for | Duration |
+|-------|-------------|----------|
+| **Parents & Caregivers** | Parents, guardians, grandparents, teachers, coaches | ~90 min |
+| **Young People (10–16)** | Young people who want to learn to spot manipulation | ~60 min |
+| **Companies & Platforms** | Product managers, trust & safety teams, CTOs, compliance officers | ~120 min |
+
+**Start here →** [tuteliq.ai/certify](https://tuteliq.ai/certify)
+
+- 100% Free — no login required
+- Verifiable certificate on completion
+- Covers grooming recognition, sextortion, cyberbullying, regulatory obligations (KOSA, EU DSA), and more
+
+---
+
 ## The Mission: Why This Matters
 
 Before you decide to contribute or sponsor, read these numbers. They are not projections. They are not estimates from a pitch deck. They are verified statistics from the University of Edinburgh, UNICEF, NCMEC, and Interpol.
