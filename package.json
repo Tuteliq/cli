@@ -1,6 +1,6 @@
 {
   "name": "@tuteliq/cli",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Tuteliq CLI - AI-powered child safety analysis from your terminal",
   "type": "module",
   "bin": {
