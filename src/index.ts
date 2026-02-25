@@ -1026,6 +1026,13 @@ function formatDetectionResult(result: any, label: string): void {
     console.log(chalk.dim('Evidence:'));
     result.evidence.forEach((e: string) => console.log(chalk.yellow(`  • ${e}`)));
   }
+  if (result.message_analysis?.length > 0) {
+    console.log();
+    console.log(chalk.dim('Message Analysis:'));
+    result.message_analysis.forEach((m: any) => {
+      console.log(chalk.cyan(`  [${m.message_index}]`) + ` Risk: ${(m.risk_score * 100).toFixed(0)}% — ${m.summary}${m.flags?.length > 0 ? chalk.yellow(` [${m.flags.join(', ')}]`) : ''}`);
+    });
+  }
   console.log();
   console.log(`Action: ${chalk.yellow(result.recommended_action)}`);
 }
