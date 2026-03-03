@@ -1,0 +1,31 @@
+# Tuteliq CLI
+
+> Command-line interface for Tuteliq — detect bullying, grooming, and unsafe content from your terminal.
+
+## What is this?
+A CLI tool for the Tuteliq child safety API. Scan text, conversations, audio, and images for harmful content directly from the terminal.
+
+## Install
+npm install -g @tuteliq/cli
+# or
+brew tap Tuteliq/tap && brew install tuteliq
+
+## Quick Start
+export TUTELIQ_API_KEY=tq_your_key
+tuteliq detect unsafe --text "message to check" --age-group 13-15
+tuteliq detect grooming --file conversation.json --age-group 10-12
+tuteliq detect bullying --text "you're so ugly" --age-group 10-12
+tuteliq usage
+
+## Commands
+- tuteliq detect unsafe — Scan text for harmful content (KOSA categories)
+- tuteliq detect bullying — Detect bullying patterns
+- tuteliq detect grooming — Analyze conversations for grooming
+- tuteliq analyze voice — Analyze audio files
+- tuteliq analyze image — Analyze images
+- tuteliq usage — Check credit balance
+
+## Links
+- Website: https://tuteliq.ai
+- Documentation: https://docs.tuteliq.ai
+- GitHub: https://github.com/Tuteliq/cli
