@@ -23,6 +23,8 @@ tuteliq usage
 - tuteliq detect grooming — Analyze conversations for grooming
 - tuteliq analyze voice — Analyze audio files
 - tuteliq analyze image — Analyze images
+- tuteliq verify age — Age verification via document, biometric, or combined (Beta, Pro tier+, 5 credits, POST /v1/verification/age)
+- tuteliq verify identity — Identity verification with document and selfie (Beta, Business tier+, 10 credits, POST /v1/verification/identity)
 - tuteliq usage — Check credit balance
 
 ## Links
