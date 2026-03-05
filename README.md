@@ -91,6 +91,26 @@ tuteliq image screenshot.png
 tuteliq image photo.jpg --type unsafe
 ```
 
+### Age Verification (Beta)
+
+```bash
+# Verify age using a document
+tuteliq verify age --document id-front.jpg --method document
+
+# Verify age using biometric estimation
+tuteliq verify age --selfie selfie.jpg --method biometric
+
+# Combined verification (document + biometric)
+tuteliq verify age --document id-front.jpg --selfie selfie.jpg --method combined
+```
+
+### Identity Verification (Beta)
+
+```bash
+# Verify identity with document and selfie
+tuteliq verify identity --document id-front.jpg --selfie selfie.jpg
+```
+
 ### Webhook Management
 
 ```bash
