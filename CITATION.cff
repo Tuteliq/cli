@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: Tuteliq CLI
+message: "If you use this software, please cite it using this metadata."
+type: software
+authors:
+  - name: Tuteliq
+    website: https://tuteliq.ai
+repository-code: https://github.com/Tuteliq/cli
+url: https://tuteliq.ai
+abstract: >-
+  Command-line interface for Tuteliq — detect bullying, grooming, and unsafe content from your terminal
+keywords:
+  - child safety
+  - CLI
+  - content moderation
+  - KOSA
+  - grooming detection
+  - bullying detection
+  - online safety
+  - terminal
+  - command line
+  - age verification
+  - identity verification
+license: MIT
