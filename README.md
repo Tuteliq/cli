@@ -91,6 +91,19 @@ tuteliq image screenshot.png
 tuteliq image photo.jpg --type unsafe
 ```
 
+### Document Analysis
+
+```bash
+# Analyze a PDF for safety concerns
+tuteliq analyze-document report.pdf
+
+# With specific endpoints
+tuteliq analyze-document report.pdf --endpoints unsafe,grooming,coercive-control
+
+# With age group and language
+tuteliq analyze-document report.pdf --age-group 13-15 --language en
+```
+
 ### Age Verification (Beta)
 
 ```bash

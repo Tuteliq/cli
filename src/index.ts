@@ -1352,4 +1352,89 @@ program
     }
   });
 
+program
+  .command('analyze-document <file>')
+  .alias('document')
+  .description('Analyze a PDF document for safety concerns')
+  .option('--endpoints <list>', 'Comma-separated detection endpoints (default: unsafe,coercive-control,radicalisation)')
+  .option('--age-group <group>', 'Age group for calibrated analysis')
+  .option('--language <lang>', 'Language hint (e.g., "en", "sv")')
+  .option('--support-threshold <level>', 'Minimum severity for crisis helplines (low|medium|high|critical)')
+  .option('--external-id <id>', 'External reference ID')
+  .option('--customer-id <id>', 'Customer ID')
+  .action(async (file: string, options: any) => {
+    const spinner = ora('Analyzing document...').start();
+    try {
+      const client = getClient();
+      const fs = await import('fs');
+      const path = await import('path');
+      const buffer = fs.readFileSync(file);
+      const filename = path.basename(file);
+      const endpoints = options.endpoints?.split(',').map((e: string) => e.trim());
+      const result = await client.analyzeDocument({
+        file: buffer,
+        filename,
+        endpoints,
+        ageGroup: options.ageGroup,
+        language: options.language,
+        supportThreshold: options.supportThreshold,
+        externalId: options.externalId,
+        customerId: options.customerId,
+      });
+      spinner.stop();
+
+      console.log();
+      console.log(chalk.bold('Document Analysis'));
+      console.log();
+      console.log(`Document Hash:     ${chalk.dim(result.document_hash)}`);
+      console.log(`Total Pages:       ${chalk.cyan(String(result.total_pages))}`);
+      console.log(`Pages Analyzed:    ${chalk.cyan(String(result.pages_analyzed))}`);
+      console.log(`Overall Risk:      ${chalk.cyan((result.overall_risk_score * 100).toFixed(0) + '%')}`);
+      console.log(`Overall Severity:  ${formatSeverity(result.overall_severity)}`);
+      console.log(`Credits Used:      ${chalk.cyan(String(result.credits_used))}`);
+
+      if (result.detected_endpoints?.length > 0) {
+        console.log(`Detected Threats:  ${chalk.red(result.detected_endpoints.join(', '))}`);
+      }
+
+      if (result.flagged_pages?.length > 0) {
+        console.log();
+        console.log(chalk.bold('Flagged Pages'));
+        console.log(chalk.dim('─'.repeat(50)));
+        for (const page of result.flagged_pages) {
+          const sev = formatSeverity(page.severity);
+          console.log();
+          console.log(`Page ${chalk.bold(String(page.page_number))} — ${sev} (${(page.risk_score * 100).toFixed(0)}%)`);
+          console.log(`  Endpoints: ${page.detected_endpoints.join(', ')}`);
+        }
+      } else {
+        console.log();
+        console.log(chalk.green('No flagged pages found in document.'));
+      }
+
+      if (result.page_results?.length > 0) {
+        console.log();
+        console.log(chalk.bold('Page Results'));
+        console.log(chalk.dim('─'.repeat(50)));
+        for (const page of result.page_results.slice(0, 20)) {
+          const detections = page.results.filter((r: any) => r.detected);
+          if (detections.length > 0) {
+            console.log();
+            console.log(`Page ${chalk.bold(String(page.page_number))} — ${formatSeverity(page.page_severity)}`);
+            for (const d of detections) {
+              console.log(`  ${chalk.yellow(d.endpoint)}: ${d.rationale}`);
+            }
+          }
+        }
+        if (result.page_results.length > 20) {
+          console.log(chalk.dim(`\n...and ${result.page_results.length - 20} more pages`));
+        }
+      }
+    } catch (error) {
+      spinner.stop();
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
 program.parse();
