@@ -1255,14 +1255,14 @@ program
     const spinner = ora('Analyzing across endpoints...').start();
     try {
       const client = getClient();
-      const endpoints = options.endpoints.split(',').map((s: string) => s.trim());
+      const detections = options.endpoints.split(',').map((s: string) => s.trim());
       const result = await client.analyseMulti({
         content: text,
-        endpoints,
+        detections,
         includeEvidence: options.includeEvidence || false,
         context: options.ageGroup ? { ageGroup: options.ageGroup } : undefined,
-        externalId: options.externalId,
-        customerId: options.customerId,
+        external_id: options.externalId,
+        customer_id: options.customerId,
       });
       spinner.stop();
 
@@ -1272,7 +1272,7 @@ program
       console.log(chalk.dim('─'.repeat(50)));
       console.log(`Overall Risk:   ${formatRisk(result.summary.overall_risk_level)}`);
       console.log(`Detected:       ${chalk.cyan(String(result.summary.detected_count))} / ${result.summary.total_endpoints}`);
-      console.log(`Highest Risk:   ${result.summary.highest_risk ? chalk.red(result.summary.highest_risk) : chalk.green('none')}`);
+      console.log(`Highest Risk:   ${result.summary.highest_risk ? chalk.red(`${result.summary.highest_risk.endpoint} (${(result.summary.highest_risk.risk_score * 100).toFixed(0)}%)`) : chalk.green('none')}`);
       console.log();
 
       // Individual results
@@ -1280,16 +1280,17 @@ program
       console.log(chalk.dim('─'.repeat(50)));
       for (const r of result.results) {
         const status = r.detected ? chalk.red('DETECTED') : chalk.green('CLEAR');
-        const name = r.endpoint || r.type || 'unknown';
         console.log();
-        console.log(`${chalk.bold(name)}: ${status}`);
-        console.log(`  Risk Score:  ${chalk.cyan((r.risk_score * 100).toFixed(0) + '%')}  |  Severity: ${formatSeverity(r.severity)}  |  Confidence: ${chalk.cyan((r.confidence * 100).toFixed(0) + '%')}`);
+        console.log(`${chalk.bold(r.endpoint)}: ${status}`);
+        console.log(`  Risk Score:  ${chalk.cyan((r.risk_score * 100).toFixed(0) + '%')}  |  Severity: ${formatSeverity(r.level)}  |  Confidence: ${chalk.cyan((r.confidence * 100).toFixed(0) + '%')}`);
         if (r.categories?.length > 0) {
           console.log(`  Categories:  ${r.categories.join(', ')}`);
         }
-        console.log(`  ${chalk.dim(r.rationale)}`);
-        if (r.evidence?.length > 0) {
-          r.evidence.forEach((e: string) => console.log(chalk.yellow(`    • ${e}`)));
+        if (r.rationale) {
+          console.log(`  ${chalk.dim(r.rationale)}`);
+        }
+        if (r.evidence && r.evidence.length > 0) {
+          r.evidence.forEach((e) => console.log(chalk.yellow(`    • ${e.text}`) + chalk.dim(` (${e.tactic})`)));
         }
       }
     } catch (error) {
@@ -1320,8 +1321,8 @@ program
         file: buffer,
         filename,
         ageGroup: options.ageGroup,
-        externalId: options.externalId,
-        customerId: options.customerId,
+        external_id: options.externalId,
+        customer_id: options.customerId,
       });
       spinner.stop();
 
@@ -1332,21 +1333,19 @@ program
       console.log(`Overall Risk:      ${chalk.cyan((result.overall_risk_score * 100).toFixed(0) + '%')}`);
       console.log(`Overall Severity:  ${formatSeverity(result.overall_severity)}`);
 
-      if (result.safety_findings?.length > 0) {
+      if (result.categories?.length > 0) {
+        console.log(`Categories:        ${result.categories.join(', ')}`);
+      }
+
+      if (result.flagged_timestamps?.length > 0) {
         console.log();
-        console.log(chalk.bold('Safety Findings'));
+        console.log(chalk.bold('Flagged Timestamps'));
         console.log(chalk.dim('─'.repeat(50)));
-        for (const finding of result.safety_findings) {
-          const ts = finding.timestamp != null ? chalk.dim(`[${finding.timestamp}s]`) : '';
-          const sev = formatSeverity(finding.severity);
+        for (const flag of result.flagged_timestamps) {
+          const ts = chalk.dim(`[${flag.timestamp_s}s]`);
+          const sev = formatSeverity(flag.severity);
           console.log();
-          console.log(`${ts} ${sev} — ${chalk.bold(finding.type || finding.category || 'Finding')}`);
-          if (finding.description) {
-            console.log(`  ${finding.description}`);
-          }
-          if (finding.confidence != null) {
-            console.log(`  Confidence: ${chalk.cyan((finding.confidence * 100).toFixed(0) + '%')}`);
-          }
+          console.log(`${ts} ${sev} — ${flag.reason}`);
         }
       } else {
         console.log();
