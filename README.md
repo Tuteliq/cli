@@ -11,6 +11,8 @@
 
 ## Installation
 
+Requires Node.js 22.12 or later.
+
 ### Homebrew (macOS/Linux)
 
 ```bash
@@ -91,24 +93,84 @@ tuteliq image screenshot.png
 tuteliq image photo.jpg --type unsafe
 ```
 
-### Age Verification (Beta)
+### More Detection
 
 ```bash
-# Verify age using a document
-tuteliq verify age --document id-front.jpg --method document
+# Fraud and extended safety (each has a short alias without "detect-")
+tuteliq detect-social-engineering "Text to check"
+tuteliq detect-romance-scam "Text to check"
+tuteliq detect-distress-signals "Text to check"
+tuteliq detect-synthetic-text "Text to check"
 
-# Verify age using biometric estimation
-tuteliq verify age --selfie selfie.jpg --method biometric
+# Common options for these commands
+tuteliq romance-scam "..." --include-evidence --age-group 13-15 --external-id msg-123 --customer-id user-42
 
-# Combined verification (document + biometric)
-tuteliq verify age --document id-front.jpg --selfie selfie.jpg --method combined
+# Several detections in one request
+tuteliq analyse-multi "Text to check" -e grooming,social-engineering,romance-scam
+
+# Video
+tuteliq analyze-video clip.mp4
 ```
 
-### Identity Verification (Beta)
+### Age & Identity Verification
+
+Verification runs in a hosted session: create a session, send the user its URL to complete on their phone, then read the result.
 
 ```bash
-# Verify identity with document and selfie
-tuteliq verify identity --document id-front.jpg --selfie selfie.jpg
+# Create a session (defaults to an age check)
+tuteliq verify session create
+tuteliq verify session create --mode identity --document-type passport
+tuteliq verify session create --chip-policy required --no-auto-capture
+
+# Check status and result (status may be pending, in_progress, document_required, completed, failed or expired)
+tuteliq verify session get <session-id>
+
+# Print the full response as JSON
+tuteliq verify session get <session-id> --json
+
+# Cancel a session
+tuteliq verify session cancel <session-id>
+```
+
+| Option | Values |
+|--------|--------|
+| `--mode` | `age` (default), `identity` |
+| `--document-type` | `passport`, `national_id`, `drivers_license` |
+| `--chip-policy` | `optional` (API default), `required`, `instead_of_photo` |
+| `--auto-capture` / `--no-auto-capture` | Whether the page takes the document photo itself (API default: on) |
+
+The extracted document fields and date of birth are returned only on the first read after a session completes. Keep that output, use `--json`, or subscribe to the `verification.completed` webhook.
+
+### Incidents
+
+```bash
+# List incidents, newest first (filters can be combined)
+tuteliq incidents list
+tuteliq incidents list --severity high --status new --limit 50
+tuteliq incidents list --category grooming --from 2026-01-01T00:00:00Z --cursor <next-cursor>
+
+# One incident
+tuteliq incidents get <incident-id>
+
+# Totals and trends (default window: last 30 days)
+tuteliq incidents overview
+tuteliq incidents trends --bucket week
+
+# Record a moderator decision
+tuteliq incidents review <incident-id> --action dismiss --reason false_positive --moderator moderator-42
+tuteliq incidents review <incident-id> --action downgrade --reason insufficient_severity --moderator moderator-42 --new-level low
+
+# Apply the same decision to up to 100 incidents
+tuteliq incidents batch-review <id-1> <id-2> <id-3> --action resolve --reason confirmed_accurate --moderator moderator-42
+```
+
+### Account Data (GDPR)
+
+```bash
+tuteliq account export -o my-data.json
+tuteliq account consent-status
+tuteliq account audit-logs --limit 20
+tuteliq account delete --confirm
 ```
 
 ### Webhook Management
@@ -132,6 +194,10 @@ tuteliq usage monthly
 tuteliq usage history --days 14
 tuteliq usage by-tool --date 2026-02-13
 ```
+
+### Admin Commands
+
+`tuteliq breach ...` manages the data breach register. It needs an admin key; ordinary API keys receive a 403 error.
 
 ## Examples
 
@@ -196,11 +262,9 @@ Enable `PII_REDACTION_ENABLED=true` on your Tuteliq API to automatically strip e
 
 ## Supported Languages
 
-Tuteliq supports **27 languages** with automatic detection — no configuration required.
+Tuteliq supports **32 languages** with automatic detection, no configuration required.
 
-**English** (stable) and **26 beta languages**: Spanish, Portuguese, Ukrainian, Swedish, Norwegian, Danish, Finnish, German, French, Dutch, Polish, Italian, Turkish, Romanian, Greek, Czech, Hungarian, Bulgarian, Croatian, Slovak, Lithuanian, Latvian, Estonian, Slovenian, Maltese, and Irish.
-
-All 24 EU official languages + Ukrainian, Norwegian, and Turkish. Each language includes culture-specific safety guidelines covering local slang, grooming patterns, self-harm coded vocabulary, and filter evasion techniques.
+**English** (stable) and **31 beta languages**: Spanish, Portuguese, Ukrainian, Swedish, Norwegian, Danish, Finnish, German, French, Dutch, Polish, Italian, Turkish, Romanian, Greek, Czech, Hungarian, Bulgarian, Croatian, Slovak, Lithuanian, Latvian, Estonian, Slovenian, Maltese, Irish, Chinese, Japanese, Korean, Arabic, and Russian.
 
 See the [Language Support docs](https://docs.tuteliq.ai/languages) for details.
 
