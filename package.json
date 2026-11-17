@@ -1,14 +1,21 @@
 {
   "name": "@tuteliq/cli",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "description": "Tuteliq CLI - AI-powered child safety analysis from your terminal",
   "type": "module",
   "bin": {
     "tuteliq": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "assets",
+    "llms.txt"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -26,7 +33,7 @@
   },
   "homepage": "https://tuteliq.ai",
   "dependencies": {
-    "@tuteliq/sdk": "^2.31.0",
+    "@tuteliq/sdk": "^3.2.0",
     "chalk": "^6.0.0",
     "commander": "^15.0.0",
     "conf": "^16.0.0",
@@ -35,9 +42,10 @@
   "devDependencies": {
     "@types/node": "^26.2.0",
     "tsx": "^4.19.2",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

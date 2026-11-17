@@ -1,9 +1,9 @@
 # Tuteliq CLI
 
-> Command-line interface for Tuteliq — detect bullying, grooming, and unsafe content from your terminal.
+> Command-line interface for Tuteliq: detect bullying, grooming, unsafe content, fraud and more from your terminal.
 
 ## What is this?
-A CLI tool for the Tuteliq child safety API. Scan text, conversations, audio, and images for harmful content directly from the terminal.
+A CLI tool for the Tuteliq child safety API. Scan text, conversations, audio, images and video for harmful content, run hosted age and identity verification sessions, and review incidents directly from the terminal. Requires Node.js 22.12 or later.
 
 ## Install
 npm install -g @tuteliq/cli
@@ -11,24 +11,35 @@ npm install -g @tuteliq/cli
 brew tap Tuteliq/tap && brew install tuteliq
 
 ## Quick Start
-export TUTELIQ_API_KEY=tq_your_key
-tuteliq detect unsafe --text "message to check" --age-group 13-15
-tuteliq detect grooming --file conversation.json --age-group 10-12
-tuteliq detect bullying --text "you're so ugly" --age-group 10-12
-tuteliq usage
+tuteliq login tq_your_key
+tuteliq detect-unsafe "message to check"
+tuteliq detect-bullying "you're so ugly"
+tuteliq detect-grooming -m '[{"role":"adult","content":"..."},{"role":"child","content":"..."}]' --age 12
+tuteliq usage monthly
 
 ## Commands
-- tuteliq detect unsafe — Scan text for harmful content (KOSA categories)
-- tuteliq detect bullying — Detect bullying patterns
-- tuteliq detect grooming — Analyze conversations for grooming
-- tuteliq analyze voice — Analyze audio files
-- tuteliq analyze image — Analyze images
-- tuteliq verify age — Age verification via document, biometric, or combined (Beta, Pro tier+, 5 credits, POST /v1/verification/age)
-- tuteliq verify identity — Identity verification with document and selfie (Beta, Business tier+, 10 credits, POST /v1/verification/identity)
-- tuteliq usage — Check credit balance
+- tuteliq analyze <text>: Quick safety analysis (bullying + unsafe)
+- tuteliq detect-unsafe <text>: Scan text for harmful content
+- tuteliq detect-bullying <text>: Detect bullying patterns
+- tuteliq detect-grooming -m <json>: Analyze conversations for grooming
+- tuteliq detect-social-engineering | detect-app-fraud | detect-romance-scam | detect-mule-recruitment <text>: Fraud detection
+- tuteliq detect-gambling-harm | detect-coercive-control | detect-vulnerability-exploitation | detect-radicalisation | detect-distress-signals <text>: Extended safety detection
+- tuteliq detect-synthetic-text <text>: Detect AI-generated text
+- tuteliq analyse-multi <text> -e <list>: Several detections in one request
+- tuteliq emotions <text> / tuteliq action-plan <situation>: Analysis and guidance
+- tuteliq voice <file> / tuteliq image <file> / tuteliq analyze-video <file>: Media analysis
+- tuteliq verify session create [--mode age|identity] [--document-type passport|national_id|drivers_license] [--chip-policy optional|required|instead_of_photo] [--no-auto-capture]: Create a hosted verification session (POST /api/v1/verify/session) and print the URL for the user
+- tuteliq verify session get <id> [--json]: Session status (including document_required) and result, with face match score (GET /api/v1/verify/session/:id)
+- tuteliq verify session cancel <id>: Cancel a session (DELETE /api/v1/verify/session/:id)
+- tuteliq incidents list | get <id> | overview | trends: Read incidents (GET /api/v1/incidents)
+- tuteliq incidents review <id> / batch-review <ids...>: Record moderator decisions (POST /api/v1/incidents/:id/review, /api/v1/incidents/batch-review)
+- tuteliq webhook list | create | update | delete | test | regenerate-secret: Webhook management
+- tuteliq account export | delete | consent-record | consent-status | consent-withdraw | audit-logs: Account data (GDPR)
+- tuteliq pricing / tuteliq usage monthly | history | by-tool: Pricing and usage
+- tuteliq breach ...: Admin only (requires an admin key; ordinary API keys receive 403)
 
 ## Supported Languages
-27 languages: English (stable), Spanish, Portuguese, Ukrainian, Swedish, Norwegian, Danish, Finnish, German, French, Dutch, Polish, Italian, Turkish, Romanian, Greek, Czech, Hungarian, Bulgarian, Croatian, Slovak, Lithuanian, Latvian, Estonian, Slovenian, Maltese, Irish (beta). Auto-detected, no configuration needed.
+32 languages: English (stable), Spanish, Portuguese, Ukrainian, Swedish, Norwegian, Danish, Finnish, German, French, Dutch, Polish, Italian, Turkish, Romanian, Greek, Czech, Hungarian, Bulgarian, Croatian, Slovak, Lithuanian, Latvian, Estonian, Slovenian, Maltese, Irish, Chinese, Japanese, Korean, Arabic, Russian (beta). Auto-detected, no configuration needed.
 
 ## Links
 - Website: https://tuteliq.ai
