@@ -548,3 +548,17 @@ describe('version', () => {
     expect(program.version()).toBe(pkg.version);
   });
 });
+
+describe('whoami', () => {
+  it('says a key is saved without printing any part of it', async () => {
+    const { stdout } = await runCli(['whoami']);
+    expect(stdout).toContain('Logged in');
+    for (const part of ['tq_invented', 'invented_key', '0000']) expect(stdout).not.toContain(part);
+  });
+
+  it('says how to log in when no key is saved', async () => {
+    store.clear();
+    const { stdout } = await runCli(['whoami']);
+    expect(stdout).toContain('Not logged in');
+  });
+});

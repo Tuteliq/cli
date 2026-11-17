@@ -100,9 +100,9 @@ program
   .action(() => {
     const apiKey = config.get('apiKey') as string;
     if (apiKey) {
-      const masked = apiKey.slice(0, 8) + '...' + apiKey.slice(-4);
+      // Never print any part of the key: terminal output ends up in shell history, logs and screenshots.
       console.log(chalk.green('✓ Logged in'));
-      console.log(chalk.dim('API Key: ' + masked));
+      console.log(chalk.dim('API key saved in: ' + config.path));
     } else {
       console.log(chalk.yellow('Not logged in'));
       console.log(chalk.dim('Run: tuteliq login <api-key>'));
